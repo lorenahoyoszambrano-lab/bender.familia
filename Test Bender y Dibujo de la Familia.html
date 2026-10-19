@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Test Bender y Dibujo de la Familia</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b2430;--mu:#5b6675;--ac:#2f5fd0;--acbg:#e6edfc;--bd:#d6dbe3;--ok:#2e8b57;--wa:#d08a12;--hi:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181f;--card:#1d232d;--tx:#e8ecf2;--mu:#9aa5b5;--ac:#7ea2ff;--acbg:#26345a;--bd:#323b49}}
+:root[data-theme="dark"]{--bg:#14181f;--card:#1d232d;--tx:#e8ecf2;--mu:#9aa5b5;--ac:#7ea2ff;--acbg:#26345a;--bd:#323b49}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:.2em 0}h2{font-size:1.15rem;margin:1.2em 0 .4em}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:12px 0}
+.mu{color:var(--mu);font-size:.9rem}
+label{display:block;font-weight:600;margin:.4em 0 .2em}
+input{width:100%;max-width:420px;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;box-sizing:border-box}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chip{display:flex;gap:8px;align-items:flex-start;text-align:left;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit;font-size:.92rem;cursor:pointer}
+.chip .n{min-width:1.6em;height:1.6em;border-radius:50%;background:var(--bd);display:grid;place-items:center;font-size:.8rem;font-weight:700}
+.chip[aria-pressed="true"]{background:var(--acbg);border-color:var(--ac)}
+.chip[aria-pressed="true"] .n{background:var(--ac);color:#fff}
+.btn{padding:12px 18px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:inherit;font-weight:700;cursor:pointer;margin:6px 6px 0 0}
+.btn.s{background:var(--bd);color:var(--tx)}
+.bar{height:16px;background:var(--bd);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%}
+.big{font-size:2.2rem;font-weight:800}
+#rep{display:none}
+#rep li{margin:.5em 0}.tag{font-size:.75rem;padding:1px 6px;border-radius:6px;background:var(--acbg)}
+@media print{.noprint{display:none}body{background:#fff;color:#000}}
+</style></head><body><main>
+<h1>Test Bender y Dibujo de la Familia</h1>
+<p class="mu">Marque con un clic los indicadores observados. Luego genere el informe.</p>
+<div class="card noprint"><label for="nom">Nombre del niño/a</label><input id="nom" placeholder="Nombre completo">
+<label for="edad">Edad / curso</label><input id="edad" placeholder="Ej.: 8 años, 3.º de primaria"></div>
+<div class="noprint"><h2>Test Gestáltico Visomotor de Bender <span class="mu" id="cb"></span></h2><div class="grid" id="gb"></div>
+<h2>Dibujo de la Familia <span class="mu" id="cf"></span></h2><div class="grid" id="gf"></div>
+<button class="btn" id="go">Generar informe</button><button class="btn s" id="rs">Limpiar</button></div>
+<div id="rep" class="card"></div>
+</main>
+<script>
+// [etiqueta, interpretación, peso 1-3]
+var B=[
+["Distorsión de las formas","Reproduce figuras con formas distintas al modelo; posible dificultad de percepción visual o coordinación visomotora. Podría afectar el copiado de la pizarra y los ejercicios escritos.",2],
+["Dificultad para integrar las partes","Dificultad para organizar los componentes de una figura como conjunto; podría requerir apoyo para organizar información visual y coordinar lo que observa con lo que escribe.",2],
+["Omisión de elementos","Deja sin reproducir componentes; relacionado con percepción, atención al detalle, memoria visual o comprensión de la tarea. Podría omitir partes de consignas; necesita instrucciones segmentadas.",2],
+["Dificultades en la organización espacial","Dificultad para ubicar figuras en la hoja; puede afectar operaciones matemáticas, escritura, márgenes y distribución de la información.",2],
+["Rotación de las figuras","Orientación diferente a la del modelo; posible dificultad de orientación espacial. Valorar lectura, escritura y geometría.",2],
+["Dificultad para mantener la proporción","Modifica considerablemente el tamaño de los elementos; posible dificultad de organización visomotora o planificación espacial.",1],
+["Trazos temblorosos o poco controlados","Posible relación con coordinación motora fina, postura, cansancio o uso del lápiz; valorar adaptaciones y habilidades motoras.",1],
+["Dificultad con puntos o pequeños detalles","Problemas para conservar cantidad, disposición o separación de los puntos; apoyo en tareas de precisión visual y seguimiento de patrones.",1],
+["Sustitución de puntos por círculos o trazos","Puede relacionarse con la forma de ejecutar la tarea, precisión motora o percepción del modelo; valorar grafomotricidad.",1],
+["Perseveración o repetición excesiva","Repite trazos más veces que el modelo; posible dificultad de control de la ejecución, comprensión del patrón o revisión de tareas.",2],
+["Dificultad para cruzar o superponer líneas","Problemas en figuras con cruce de líneas; necesita práctica guiada de coordinación visomotora.",1],
+["Fragmentación de las figuras","Reproduce partes separadas sin integrarlas; apoyo para organizar pasos de una tarea y seguir modelos visuales.",2],
+["Falta de continuidad de las líneas","No logra trazos continuos; relacionado con coordinación visomotora, control del lápiz o familiaridad con la tarea.",1],
+["Tamaño excesivamente grande o pequeño","Dimensiones muy diferentes al modelo; planificación espacial, control motor o uso del espacio.",1],
+["Dificultad para conservar la configuración general","Organización global distinta a la presentada; explorar percepción visual y estrategias de copia.",3],
+["Lentitud excesiva","No define por sí sola una dificultad: puede depender de edad, cautela, cansancio o consigna. Revisar tiempos de trabajo.",1],
+["Ejecución apresurada con errores","Rapidez con numerosos errores; ritmo de trabajo, revisión insuficiente o comprensión de la consigna.",1],
+["Dificultad para seguir el modelo visual","Imprecisión al reproducir lo que observa; puede requerir modelos cercanos, instrucciones paso a paso y apoyos visuales.",2],
+["Errores repetidos en varias figuras","El patrón repetido justifica exploración más amplia de habilidades visomotoras y perceptivas; coordinar con la escuela.",3],
+["Dificultad general para completar la prueba","Requiere interpretación profesional según edad, condiciones de aplicación y antecedentes; conviene evaluación integral.",3]];
+var F=[
+["Omisión de un integrante","Podría indicar incomodidad, distancia o dificultades con esa persona; el malestar familiar podría afectar concentración y desempeño.",2],
+["Omisión de la propia figura","Explorar si se siente poco tomado en cuenta o sin lugar en la familia; podría influir en motivación y adaptación escolar.",3],
+["Propia figura muy pequeña","Explorar cómo se percibe en la familia; si hay inseguridad, podría tener dificultades para participar o pedir ayuda.",2],
+["Diferencias marcadas de tamaño","Indagar percepción de autoridad, trato y responsabilidades en el hogar; si genera malestar, podría repercutir en su aprendizaje.",1],
+["Distancia entre la propia figura y los demás","Explorar si siente suficiente cercanía y apoyo; podría dificultar comunicar problemas escolares.",2],
+["Integrantes agrupados por separado","Explorar divisiones o dificultades de convivencia; la tensión podría afectar concentración.",2],
+["Propia figura en extremo o fuera del grupo","Explorar sentimiento de exclusión o soledad; podría afectar bienestar, motivación y participación escolar.",3],
+["Integrantes en extremos opuestos","Indagar conflictos que presencia habitualmente y su efecto en atención y rendimiento.",2],
+["Barreras entre los personajes","Explorar dificultades de comunicación o distanciamiento; podrían dificultar concentración y disposición para estudiar.",2],
+["Escasez de detalles (cautela)","No permite concluir desinterés o rechazo; puede deberse a edad, habilidades gráficas o tiempo. Explorar directamente.",1],
+["Borrados frecuentes","Pueden deberse a inseguridad, correcciones o dificultades gráficas; explorar temor a equivocarse o a la crítica.",1],
+["Pausas o interrupciones","Pueden relacionarse con distracción, cansancio o planificación; evaluar factores que interfieren en la atención.",1],
+["Sombreado marcado (cautela)","No permite afirmar angustia o conflicto; si coincide con expresiones verbales de preocupación, explorar y valorar asistencia y rendimiento.",1],
+["Refuerzo intenso de trazos (cautela)","Puede deberse a estilo gráfico, presión del lápiz o correcciones; considerar solo con otras señales independientes de tensión.",1],
+["Una figura aislada del resto","Explorar vínculo con esa persona y apoyo familiar; si se confirma, fortalecer redes de acompañamiento.",2],
+["Ausencia de interacción entre personajes","Preguntar por actividades compartidas y acompañamiento; fortalecer participación familiar en tareas y asistencia.",2],
+["Expresiones faciales diferentes (cautela)","Puede ser elección gráfica; no determina por sí sola el estado emocional. Explorar si hay preocupación por alguien del hogar.",1],
+["Personajes en actividades independientes","Explorar distribución de responsabilidades; si asume tareas domésticas o de cuidado que limitan estudio o asistencia, Trabajo Social puede intervenir.",3],
+["Cambios de tamaño o ubicación (cautela)","Pueden responder a correcciones o planificación del espacio; no permiten inferir inestabilidad emocional o familiar.",1],
+["Elementos que dividen la composición","Explorar el significado atribuido; si se confirman conflictos que afectan su rutina de estudio, considerar orientación familiar y seguimiento socioeducativo.",3]];
+var S={b:{},f:{}};
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function build(id,A,k,c){var g=document.getElementById(id);A.forEach(function(it,i){var b=document.createElement("button");b.type="button";b.className="chip";b.setAttribute("aria-pressed","false");b.innerHTML='<span class="n">'+(i+1)+'</span><span>'+esc(it[0])+'</span>';b.onclick=function(){S[k][i]=!S[k][i];b.setAttribute("aria-pressed",S[k][i]);cnt()};g.appendChild(b)})}
+function cnt(){["b","f"].forEach(function(k){var n=Object.keys(S[k]).filter(function(i){return S[k][i]}).length;document.getElementById("c"+k).textContent="("+n+" marcados)"})}
+build("gb",B,"b");build("gf",F,"f");cnt();
+function calc(A,k){var s=0,t=0,sel=[];A.forEach(function(it,i){t+=it[2];if(S[k][i]){s+=it[2];sel.push([i+1,it])}});return{s:s,t:t,sel:sel}}
+function lvl(p){return p<20?["Bajo","var(--ok)"]:p<45?["Moderado","var(--wa)"]:p<70?["Alto","var(--hi)"]:["Muy alto","var(--hi)"]}
+document.getElementById("go").onclick=function(){
+var nom=document.getElementById("nom").value.trim()||"(sin nombre)",ed=document.getElementById("edad").value.trim();
+var b=calc(B,"b"),f=calc(F,"f");
+var S1=b.s+f.s,T=b.t+f.t,p=Math.min(95,Math.round(100*S1/(0.45*T)));
+var L=lvl(p),pb=Math.round(100*b.s/b.t),pf=Math.round(100*f.s/f.t);
+var n=b.sel.length+f.sel.length,hi=b.sel.concat(f.sel).filter(function(x){return x[1][2]==3}).length;
+function list(a,t){return a.sel.length?'<h3>'+t+' ('+a.sel.length+')</h3><ul>'+a.sel.map(function(x){return'<li><b>'+x[0]+'. '+esc(x[1][0])+'</b> <span class="tag">peso '+x[1][2]+'</span><br><span class="mu">'+esc(x[1][1])+'</span></li>'}).join("")+'</ul>':'<h3>'+t+'</h3><p class="mu">Sin indicadores marcados.</p>'}
+var res="Se registraron "+n+" indicadores ("+b.sel.length+" en el Bender y "+f.sel.length+" en el Dibujo de la Familia), de los cuales "+hi+" son de mayor peso. ";
+res+=pb>=pf?"El área con mayor carga es la visomotora y perceptiva (Bender), por lo que se sugiere priorizar apoyo pedagógico en copia, organización espacial y grafomotricidad. ":"El área con mayor carga es la socioemocional y familiar, por lo que se sugiere priorizar entrevista con la familia, observación en aula y, de ser necesario, orientación o intervención de Trabajo Social. ";
+res+=p>=45?"La combinación de indicadores justifica una evaluación integral y coordinación con la escuela.":"Se recomienda seguimiento y contraste con observación en aula y rendimiento académico.";
+var r=document.getElementById("rep");
+r.innerHTML='<h2 style="margin-top:0">Informe de evaluación</h2><p><b>Niño/a:</b> '+esc(nom)+(ed?' &middot; <b>Edad/curso:</b> '+esc(ed):'')+'<br><b>Fecha:</b> '+new Date().toLocaleDateString("es-BO")+'</p>'+
+'<div class="card"><div class="mu">Riesgo estimado de deserción académica</div><div class="big" style="color:'+L[1]+'">'+p+'% &middot; '+L[0]+'</div><div class="bar"><i style="width:'+p+'%;background:'+L[1]+'"></i></div><p class="mu">Bender: '+pb+'% de carga &middot; Familia: '+pf+'% de carga</p></div>'+
+'<h3>Resumen con criterio clínico</h3><p>'+res+'</p>'+list(b,"Indicadores del Bender")+list(f,"Indicadores del Dibujo de la Familia")+
+'<p class="mu"><b>Aviso:</b> el porcentaje es un índice de cribado calculado con una ponderación orientativa de los indicadores marcados; no es una medida validada ni un diagnóstico. Los indicadores son hipótesis a confirmar mediante entrevista, observación, antecedentes de desarrollo y rendimiento escolar, y su interpretación corresponde a un profesional.</p>'+
+'<button class="btn noprint" onclick="window.print()">Imprimir / guardar PDF</button>';
+r.style.display="block";r.scrollIntoView({behavior:"smooth"})};
+document.getElementById("rs").onclick=function(){S={b:{},f:{}};document.querySelectorAll(".chip").forEach(function(c){c.setAttribute("aria-pressed","false")});document.getElementById("rep").style.display="none";cnt()};
+</script></body></html>
